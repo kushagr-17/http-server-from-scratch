@@ -7,6 +7,7 @@ Everybody knows how a valid HTTP request looks like, the three most important pi
 - Method (`GET/POST/PUT` etc)
 - Target Path
 - Protocol Version (here, `HTTP/1.1`)
+- 
 Everything after it (Host, User-Agent, Accept) are called HTTP headers which are just key-value pairs providing metadata.
 
 A valid HTTP response has 4 essential parts:
