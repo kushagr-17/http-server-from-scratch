@@ -32,3 +32,11 @@ This project implements a functional HTTP/1.1 server from scratch which interact
 * Browsers will drop connections if the response does not adhere strictly to the HTTP RFC specifications. 
 * The server manually constructs the HTTP response string, ensuring the inclusion of the required Status Line (`HTTP/1.1 200 OK`), essential headers (`Content-Type`, `Content-Length`), and the mandatory Carriage Return + Line Feed (`\r\n\r\n`) that separates the headers from the HTML body.
 * The formatted string is written back across the TCP socket (`conn.Write`), and the connection is closed (`conn.Close()`), simulating the stateless nature of standard HTTP.
+
+## Next up
+- [ ] To implement concurrency (via Goroutines) and dynamic routing (basically a map for new paths)
+- [ ] Addition of Static assests, to be read using `os.ReadFile`
+- [ ] Basic API engine
+- [ ] Bunch of more stuff like: middleware arch, state management, auth, and a possible TLS upgrade
+
+> *Progressing this into a backend project*
