@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net" // net package to open standard TCP sockets
 	"os"
+	"strings"
 	"time"
 )
 
@@ -69,4 +70,43 @@ func sendHTML(conn net.Conn, status string, body string) {
 		"%s", status, len(body), body)
 
 	conn.Write([]byte(response))
+}
+
+func handleClient(conn net.Conn, router *Router) {
+	defer conn.Close()
+
+	buffer := make([]byte, 1024)
+	bytesRead, err := conn.Read(buffer)
+	if err != nil {
+		return
+	}
+
+	request := string(buffer[:bytesRead])
+	lines := strings.Split(request, "\n")
+	if len(lines) == 0 {
+		return
+	}
+
+	requestLine := strings.TrimSpace(lines[0])
+	parts := strings.Split(requestLine, " ")
+	if len(parts) < 3 {
+		return
+	}
+
+	method := parts[0]
+	path := parts[1]
+
+	fmt.Printf("Handling %s %s\n", method, path)
+
+	handler, exists := router.routes[path]
+	if exists {
+		handler(conn, method)
+	} else {
+		handleNotFound(conn)
+	}
+}
+
+func handleNotFound(conn net.Conn) {
+	body := "<html><body><h1>404 Not Found</h1><p>The requested path does not exist.</p></body></html>"
+	sendHTML(conn, "404 Not Found", body)
 }
