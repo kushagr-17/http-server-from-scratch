@@ -7,6 +7,21 @@ import (
 	"strings"
 )
 
+type Handler func(conn net.Conn, method string)
+
+// maps string paths to their respective handler functions
+type Router struct {
+	routes map[string]Handler
+}
+
+func NewRouter() *Router {
+	return &Router{routes: make(map[string]Handler)}
+}
+
+func (r *Router) Handle(path string, handler Handler) {
+	r.routes[path] = handler
+}
+
 func main() {
 	listener, err := net.Listen("tcp", ":8080")
 	if err != nil {
