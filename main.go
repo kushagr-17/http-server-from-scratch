@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net" // net package to open standard TCP sockets
 	"os"
-	"strings"
+	"time"
 )
 
 type Handler func(conn net.Conn, method string)
@@ -30,6 +30,10 @@ func main() {
 	}
 	defer listener.Close()
 
+	router := NewRouter()
+	router.Handle("/", handleHome)
+	router.Handle("/weirdshit", handleSome)
+
 	fmt.Println("Server is listening on http://localhost:8080")
 
 	for {
@@ -39,44 +43,30 @@ func main() {
 			continue
 		}
 
-		buffer := make([]byte, 1024)
-		bytesRead, err := conn.Read(buffer)
-		if err != nil {
-			fmt.Println("Error reading from connection:", err)
-			conn.Close()
-			continue
-		}
-
-		request := string(buffer[:bytesRead])
-
-		lines := strings.Split(request, "\n")
-
-		var method, path string
-
-		if len(lines) > 0 {
-			requestLine := strings.TrimSpace(lines[0])
-
-			parts := strings.Split(requestLine, " ")
-
-			if len(parts) >= 3 {
-				method = parts[0]
-				path = parts[1]
-
-				fmt.Printf("Received %s request for path: %s\n", method, path)
-			}
-		}
-
-		body := "<html><body><h1>Wello Horld!</h1><p>No usage of <code>net/http</code></p></body></html>"
-
-		response := fmt.Sprintf("HTTP/1.1 200 OK\r\n"+
-			"Content-Type: text/html; charset=UTF-8\r\n"+
-			"Content-Length: %d\r\n"+
-			"Connection: close\r\n"+
-			"\r\n"+
-			"%s", len(body), body)
-
-		conn.Write([]byte(response))
-
-		conn.Close()
+		// 'go' keyword spawns a lightweight thread (Goroutine)
+		go handleClient(conn, router)
 	}
+}
+
+func handleHome(conn net.Conn, method string) {
+	body := "<html><body><h1>Welcome to the HomePage!</h1><p>Served concurrently via Goroutines</p></body></html>"
+	sendHTML(conn, "200 OK", body)
+}
+
+func handleSome(conn net.Conn, method string) {
+	time.Sleep(2 * time.Second)
+
+	body := "<html><body><h1>Some weirdShit endpoint</h1><p>This request took 2 seconds!</p></body></html>"
+	sendHTML(conn, "200 OK", body)
+}
+
+func sendHTML(conn net.Conn, status string, body string) {
+	response := fmt.Sprintf("HTTP/1.1 %s\r\n"+
+		"Content-Type: text/html; charset=UTF-8\r\n"+
+		"Content-Length: %d\r\n"+
+		"Connection: close\r\n"+
+		"\r\n"+
+		"%s", status, len(body), body)
+
+	conn.Write([]byte(response))
 }
