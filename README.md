@@ -34,7 +34,7 @@ This project implements a functional HTTP/1.1 server from scratch which interact
 * The formatted string is written back across the TCP socket (`conn.Write`), and the connection is closed (`conn.Close()`), simulating the stateless nature of standard HTTP.
 
 ## Next up
-- [ ] To implement concurrency (via Goroutines) and dynamic routing (basically a map for new paths)
+- [x] To implement concurrency (via Goroutines) and dynamic routing (basically a map for new paths)
 - [ ] Addition of Static assests, to be read using `os.ReadFile`
 - [ ] Basic API engine
 - [ ] Bunch of more stuff like: middleware arch, state management, auth, and a possible TLS upgrade
